@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <h1><i class="fas fa-eye me-2"></i> Heart & Eye Risk Assessment</h1>
+    <p class="lead">Upload a retinal image and fill in your heart health parameters for combined analysis</p>
+</div>
+
+<form method="post" action="{{ url_for('predict_combined') }}" enctype="multipart/form-data">
+    <div class="row">
+        <!-- Left column: Retinal Image Upload -->
+        <div class="col-md-6">
+            <div class="upload-container">
+                <h3><i class="fas fa-upload me-2"></i> 1. Retinal Image</h3>
+                <p class="text-muted">Upload a clear retinal image (JPEG/PNG)</p>
+                <div class="mb-3">
+                    <input class="form-control" type="file" name="file" accept="image/*" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column: Heart Disease Risk Factors -->
+        <div class="col-md-6">
+            <div class="info-card">
+                <h3><i class="fas fa-heartbeat me-2"></i> 2. Heart Disease Risk Factors</h3>
+                <p class="text-muted">Enter the following values (all required)</p>
+                <div class="row">
+                    <!-- Using same feature order as the heart model -->
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Age</label>
+                        <input type="number" step="any" class="form-control" name="age" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Sex (1=male, 0=female)</label>
+                        <select class="form-control" name="sex" required>
+                            <option value="">Select</option>
+                            <option value="1">Male</option>
+                            <option value="0">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Chest Pain Type (cp)</label>
+                        <input type="number" step="any" class="form-control" name="cp" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Resting BP (trestbps)</label>
+                        <input type="number" step="any" class="form-control" name="trestbps" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Cholesterol (chol)</label>
+                        <input type="number" step="any" class="form-control" name="chol" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Fasting Blood Sugar (fbs)</label>
+                        <select class="form-control" name="fbs" required>
+                            <option value="">Select</option>
+                            <option value="1">>120 mg/dL</option>
+                            <option value="0">≤120 mg/dL</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Resting ECG (restecg)</label>
+                        <input type="number" step="any" class="form-control" name="restecg" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Max Heart Rate (thalach)</label>
+                        <input type="number" step="any" class="form-control" name="thalach" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Exercise Angina (exang)</label>
+                        <select class="form-control" name="exang" required>
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Oldpeak</label>
+                        <input type="number" step="any" class="form-control" name="oldpeak" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Slope</label>
+                        <input type="number" step="any" class="form-control" name="slope" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Major Vessels (ca)</label>
+                        <input type="number" step="any" class="form-control" name="ca" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Thal</label>
+                        <input type="number" step="any" class="form-control" name="thal" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit button -->
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-search me-2"></i> Analyze Combined Risk
+        </button>
+    </div>
+</form>
+
+<!-- Model Performance Plots (unchanged) -->
+<div id="model-plots" class="mt-5">
+    <h3 class="text-center mb-4"><i class="fas fa-chart-bar me-2"></i> Model Training Metrics</h3>
+    <div class="row">
+        {% for plot_file in plot_files %}
+        <div class="col-md-6 col-lg-4">
+            <div class="plot-card">
+                <img src="{{ url_for('static', filename='plots/' + plot_file) }}" alt="Model Plot" class="img-fluid rounded">
+                <div class="mt-2 text-center">
+                    <small class="text-muted">{{ plot_file.replace('.png', '').replace('_', ' ') }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

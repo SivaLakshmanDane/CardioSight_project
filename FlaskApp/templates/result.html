@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="hero-section text-center">
+        <h1><i class="fas fa-chart-pie me-2"></i> Combined Analysis Results</h1>
+        <p class="lead">Retinal image classification & heart disease risk assessment</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="result-container">
+                <!-- Image and visualization row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Uploaded Retinal Image</h4>
+                        <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" alt="Uploaded Image" class="img-fluid rounded mb-3">
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Analysis Visualization</h4>
+                        <img src="data:image/png;base64,{{ plot_url }}" alt="Analysis" class="img-fluid rounded mb-3">
+                    </div>
+                </div>
+
+                <!-- Hypertensive Retinopathy Result -->
+                <div class="alert {% if hypertensive_class == 'Normal' %}alert-success{% else %}alert-danger{% endif %}">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-{% if hypertensive_class == 'Normal' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                        Retinal Prediction: <span class="{% if hypertensive_class == 'Normal' %}prediction-normal{% else %}prediction-hypertensive{% endif %}">{{ hypertensive_class }}</span>
+                    </h4>
+                    <p>Confidence: <strong>{{ "%.2f"|format(hypertensive_confidence) }}%</strong></p>
+                </div>
+
+                <!-- Heart Disease Risk Result -->
+                <div class="alert {% if heart_prediction == 'Low Risk' %}alert-success{% else %}alert-warning{% endif %}">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        Heart Disease Risk: <strong>{{ heart_prediction }}</strong>
+                    </h4>
+                </div>
+
+                <!-- Combined Stage -->
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Combined Severity Stage: <strong>{{ stage }}</strong>
+                    </h4>
+                    <p class="mb-0">{{ stage_description }}</p>
+                </div>
+
+                <!-- Recommendations based on stage -->
+                <div class="mt-4">
+                    <h5><i class="fas fa-comment-medical me-2"></i> Recommendations</h5>
+                    <ul class="list-group">
+                        {% if stage == "Stage 2" %}
+                            <li class="list-group-item list-group-item-danger">⚠️ Both hypertensive retinopathy and high heart disease risk detected – consult both an ophthalmologist and a cardiologist immediately.</li>
+                            <li class="list-group-item list-group-item-danger">📅 Schedule comprehensive eye exam and cardiac evaluation.</li>
+                            <li class="list-group-item list-group-item-danger">💊 Review blood pressure management and cardiovascular medications with your doctor.</li>
+                        {% elif stage == "Stage 1 (Hypertensive retinopathy)" %}
+                            <li class="list-group-item list-group-item-warning">👁️ Hypertensive retinopathy detected – see an ophthalmologist for further examination.</li>
+                            <li class="list-group-item list-group-item-warning">❤️ Heart disease risk is low, but maintain regular checkups to prevent future issues.</li>
+                            <li class="list-group-item list-group-item-warning">📉 Monitor blood pressure closely; adopt a heart-healthy lifestyle.</li>
+                        {% elif stage == "Stage 1  (Heart Risk)" %}
+                            <li class="list-group-item list-group-item-warning">❤️ High heart disease risk detected – consult a cardiologist for risk factor management.</li>
+                            <li class="list-group-item">👁️ Retinal image appears normal – continue routine eye exams.</li>
+                            <li class="list-group-item">🥗 Focus on diet, exercise, and medication adherence as advised by your doctor.</li>
+                        {% else %}
+                            <!-- Normal (both low) -->
+                            <li class="list-group-item list-group-item-success">✅ No significant risks detected – maintain healthy habits and regular screenings.</li>
+                            <li class="list-group-item">👁️ Continue annual eye check-ups, especially if you have hypertension.</li>
+                            <li class="list-group-item">❤️ Keep up heart-healthy lifestyle: balanced diet, exercise, stress management.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a href="{{ url_for('home') }}" class="btn btn-primary me-md-2">
+                        <i class="fas fa-redo me-2"></i> New Combined Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="info-card">
+                <h4><i class="fas fa-question-circle me-2"></i> Understanding Your Results</h4>
+
+                <p><strong>Hypertensive Retinopathy</strong> indicates damage to retinal blood vessels from high blood pressure.</p>
+                <p><strong>Heart Disease Risk</strong> is calculated from your clinical parameters (age, cholesterol, etc.).</p>
+                <p>The <strong>combined stage</strong> reflects overall risk:</p>
+                <ul>
+                    <li><strong>Stage 2</strong>: Both conditions present – highest concern.</li>
+                    <li><strong>Stage 1 (Hypertensive Retinopathy)</strong>: Only retinopathy detected.</li>
+                    <li><strong>Stage 1 (Heart Risk)</strong>: Only heart risk detected.</li>
+                    <li><strong>Normal</strong>: Neither detected.</li>
+                </ul>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-stethoscope me-2"></i>
+                    <strong>Important:</strong> This analysis is not a definitive diagnosis. Always consult with a healthcare professional.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h4><i class="fas fa-heartbeat me-2"></i> Next Steps</h4>
+
+                <ul class="list-group list-group-flush">
+                    {% if stage == "Stage 2" %}
+                        <li class="list-group-item list-group-item-danger">👁️+❤️ Schedule appointments with both eye specialist and cardiologist.</li>
+                        <li class="list-group-item list-group-item-danger">📋 Bring these results to your doctor for discussion.</li>
+                    {% elif stage == "Stage 1 (Hypertensive retinopathy)" %}
+                        <li class="list-group-item list-group-item-warning">👁️ Book an eye exam with an ophthalmologist.</li>
+                        <li class="list-group-item">❤️ Continue heart-healthy habits; recheck heart risk periodically.</li>
+                    {% elif stage == "Stage 1 (Heart Risk)" %}
+                        <li class="list-group-item list-group-item-warning">❤️ Consult a cardiologist for heart disease risk management.</li>
+                        <li class="list-group-item">👁️ Routine eye check-ups as usual.</li>
+                    {% else %}
+                        <li class="list-group-item list-group-item-success">👁️+❤️ Maintain regular screenings for both eyes and heart.</li>
+                        <li class="list-group-item">📅 Follow up with your primary care physician annually.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model performance plots (unchanged) -->
+    <div class="mt-5">
+        <h3 class="text-center mb-4"><i class="fas fa-chart-bar me-2"></i> Model Performance Metrics</h3>
+        <div class="row">
+            {% for plot_file in plot_files %}
+            <div class="col-md-6 col-lg-4">
+                <div class="plot-card">
+                    <img src="{{ url_for('static', filename='plots/' + plot_file) }}" alt="Model Plot" class="img-fluid rounded">
+                    <div class="mt-2 text-center">
+                        <small class="text-muted">{{ plot_file.replace('.png', '').replace('_', ' ') }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
